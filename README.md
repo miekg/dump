@@ -12,7 +12,13 @@
 {remote} - [{when}] {>id} {type} {class} {name} {proto} {port}
 ~~~
 
-So each query will show up as:
+So a query will show up as:
+
+~~~
+:1 - [17/Jan/2018:20:02:19 +0000] 3644 MX IN example.net. udp 46481
+~~~
+
+Note that this is shorter than the default for *log* so you can distinguish between the two outputs.
 
 ## Syntax
 
