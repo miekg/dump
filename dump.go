@@ -2,7 +2,7 @@ package dump
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	"github.com/coredns/coredns/core/dnsserver"
 	"github.com/coredns/coredns/plugin"
@@ -39,7 +39,7 @@ func setup(c *caddy.Controller) error {
 
 // ServeDNS implements the plugin.Handler interface.
 func (d Dump) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
-	fmt.Printf("[DEBUG] %d %s %d\n", r.Id, r.Question[0].Name, r.Question[0].Qtype)
+	log.Printf("[DEBUG] %d %s %d\n", r.Id, r.Question[0].Name, r.Question[0].Qtype)
 	return plugin.NextOrFailure(d.Name(), d.Next, ctx, w, r)
 }
 
