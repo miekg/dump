@@ -2,7 +2,7 @@
 
 ## Name
 
-*dump* - dump all incoming queries on standard output.
+*dump* - dumps all incoming queries on standard output.
 
 ## Description
 
