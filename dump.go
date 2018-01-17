@@ -2,13 +2,16 @@ package dump
 
 import (
 	"context"
-	"log"
+	"fmt"
 
 	"github.com/coredns/coredns/core/dnsserver"
 	"github.com/coredns/coredns/plugin"
-	"github.com/miekg/dns"
+	corelog "github.com/coredns/coredns/plugin/log"
+	"github.com/coredns/coredns/plugin/pkg/dnstest"
+	"github.com/coredns/coredns/plugin/pkg/replacer"
 
 	"github.com/mholt/caddy"
+	"github.com/miekg/dns"
 )
 
 // Dump implement the plugin interface.
@@ -37,10 +40,16 @@ func setup(c *caddy.Controller) error {
 	return nil
 }
 
+const format = `{remote} ` + corelog.CommonLogEmptyValue + ` [{when}] {>id} {type} {class} {name} {proto} {port}`
+
 // ServeDNS implements the plugin.Handler interface.
 func (d Dump) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
-	log.Printf("[DEBUG] %d %s %d\n", r.Id, r.Question[0].Name, r.Question[0].Qtype)
+	rrw := dnstest.NewRecorder(w)
+
+	rep := replacer.New(r, rrw, corelog.CommonLogEmptyValue)
+	fmt.Println(rep.Replace(format))
 	return plugin.NextOrFailure(d.Name(), d.Next, ctx, w, r)
+	//log.Printf("[DEBUG] %d %s %d\n", r.Id, r.Question[0].Name, r.Question[0].Qtype)
 }
 
 // Name implements the Handler interface.
