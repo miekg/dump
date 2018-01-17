@@ -3,6 +3,8 @@ package dump
 import (
 	"context"
 	"fmt"
+	"io"
+	"os"
 
 	"github.com/coredns/coredns/core/dnsserver"
 	"github.com/coredns/coredns/plugin"
@@ -42,12 +44,14 @@ func setup(c *caddy.Controller) error {
 
 const format = `{remote} ` + corelog.CommonLogEmptyValue + ` [{when}] {>id} {type} {class} {name} {proto} {port}`
 
+var output io.Writer = os.Stdout
+
 // ServeDNS implements the plugin.Handler interface.
 func (d Dump) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
 
 	rrw := dnstest.NewRecorder(w)
 	rep := replacer.New(r, rrw, corelog.CommonLogEmptyValue)
-	fmt.Println(rep.Replace(format))
+	fmt.Fprintln(output, rep.Replace(format))
 
 	return plugin.NextOrFailure(d.Name(), d.Next, ctx, w, r)
 }
