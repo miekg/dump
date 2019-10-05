@@ -8,11 +8,10 @@ import (
 
 	"github.com/coredns/coredns/core/dnsserver"
 	"github.com/coredns/coredns/plugin"
-	corelog "github.com/coredns/coredns/plugin/log"
 	"github.com/coredns/coredns/plugin/pkg/dnstest"
 	"github.com/coredns/coredns/plugin/pkg/replacer"
 
-	"github.com/mholt/caddy"
+	"github.com/caddyserver/caddy"
 	"github.com/miekg/dns"
 )
 
@@ -21,12 +20,7 @@ type Dump struct {
 	Next plugin.Handler
 }
 
-func init() {
-	caddy.RegisterPlugin("dump", caddy.Plugin{
-		ServerType: "dns",
-		Action:     setup,
-	})
-}
+func init() { plugin.Register("dump", setup) }
 
 func setup(c *caddy.Controller) error {
 	for c.Next() {
@@ -42,7 +36,7 @@ func setup(c *caddy.Controller) error {
 	return nil
 }
 
-const format = `{remote} ` + corelog.CommonLogEmptyValue + ` [{when}] {>id} {type} {class} {name} {proto} {port}`
+const format = `{remote} ` + replacer.EmptyValue + ` {>id} {type} {class} {name} {proto} {port}`
 
 var output io.Writer = os.Stdout
 
@@ -50,7 +44,7 @@ var output io.Writer = os.Stdout
 func (d Dump) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
 
 	rrw := dnstest.NewRecorder(w)
-	rep := replacer.New(r, rrw, corelog.CommonLogEmptyValue)
+	rep := replacer.New(r, rrw, replacer.EmptyValue)
 	fmt.Fprintln(output, rep.Replace(format))
 
 	return plugin.NextOrFailure(d.Name(), d.Next, ctx, w, r)
