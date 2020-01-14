@@ -42,11 +42,10 @@ var output io.Writer = os.Stdout
 
 // ServeDNS implements the plugin.Handler interface.
 func (d Dump) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
-
-	rrw := dnstest.NewRecorder(w)
-	rep := replacer.New(r, rrw, replacer.EmptyValue)
-	fmt.Fprintln(output, rep.Replace(format))
-
+	state := request.Request{W: w, Req: r}
+	rep := replacer.New()
+	trw := dnstest.NewRecorder(w)
+	fmt.Fprintln(output, rep.Replace(ctx, state, twr, format))
 	return plugin.NextOrFailure(d.Name(), d.Next, ctx, w, r)
 }
 
