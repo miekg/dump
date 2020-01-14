@@ -10,6 +10,7 @@ import (
 	"github.com/coredns/coredns/plugin"
 	"github.com/coredns/coredns/plugin/pkg/dnstest"
 	"github.com/coredns/coredns/plugin/pkg/replacer"
+	"github.com/coredns/coredns/request"
 
 	"github.com/caddyserver/caddy"
 	"github.com/miekg/dns"
@@ -45,7 +46,7 @@ func (d Dump) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (i
 	state := request.Request{W: w, Req: r}
 	rep := replacer.New()
 	trw := dnstest.NewRecorder(w)
-	fmt.Fprintln(output, rep.Replace(ctx, state, twr, format))
+	fmt.Fprintln(output, rep.Replace(ctx, state, trw, format))
 	return plugin.NextOrFailure(d.Name(), d.Next, ctx, w, r)
 }
 
